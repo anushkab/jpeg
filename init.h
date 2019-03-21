@@ -15,7 +15,7 @@
 |       correctly executed.                                                |
 |    4. Please follow the copyright of each benchmark program.             |
 +--------------------------------------------------------------------------+
-*/
+ */
 /*
  * Copyright (C) 2008
  * Y. Hara, H. Tomiyama, S. Honda, H. Takada and K. Ishii
@@ -25,8 +25,8 @@
  * Disclaimer of Warranty
  *
  * These software programs are available to the user without any license fee or
- * royalty on an "as is" basis. The authors disclaims  any and all warranties, 
- * whether express, implied, or statuary, including any implied warranties or 
+ * royalty on an "as is" basis. The authors disclaims  any and all warranties,
+ * whether express, implied, or statuary, including any implied warranties or
  * merchantability or of fitness for a particular purpose. In no event shall the
  * copyright-holder be liable for any incidental, punitive, or consequential damages
  * of any kind whatsoever arising from the use of these programs. This disclaimer
@@ -34,17 +34,42 @@
  * agents, transferees, successors, and assigns.
  *
  */
+
+#ifndef _INIT_H_
+#define _INIT_H_
+
+#include "decode.h"
+#include "global.h"
+
+#define JPEGSIZE 5207
+#define READ_MARKERS_REP 10
+
+void init();
+
 int main_result;
+
+unsigned char p_jinfo_jpeg_data[JPEG_FILE_SIZE];
 /*
  * Output Buffer
  */
-unsigned char *CurHuffReadBuf;
+//unsigned char *CurHuffReadBuf;
+unsigned char CurHuffReadBuf[JPEG_FILE_SIZE];
 int OutData_image_width;
 int OutData_image_height;
 int OutData_comp_vpos[RGB_NUM];
 int OutData_comp_hpos[RGB_NUM];
 unsigned char OutData_comp_buf[RGB_NUM][BMP_OUT_SIZE];
 
+/*extern*/ unsigned char hana_jpg [JPEGSIZE];
+/*extern*/ unsigned char hana_bmp [RGB_NUM][BMP_OUT_SIZE];
+
+int out_width;
+int out_length;
+
+/*
+ * Buffer for reading JPEG file
+ */
+unsigned char JpegFileBuf[JPEG_FILE_SIZE];
 /*
 +--------------------------------------------------------------------------+
 | * Test Vector (added for CHStone)                                        |
@@ -53,9 +78,10 @@ unsigned char OutData_comp_buf[RGB_NUM][BMP_OUT_SIZE];
 |     out_width : expected output data                                     |
 |     out_length : expected output data                                    |
 +--------------------------------------------------------------------------+
-*/
-#define JPEGSIZE 5207
+ */
 
+
+/*
 const unsigned char hana_jpg[JPEGSIZE] = {
     255, 216, 255, 224, 0, 16, 74, 70, 73, 70, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0,
     255, 219, 0, 67, 0, 3, 2, 2, 2, 2, 2, 3, 2, 2, 2, 3, 3, 3, 3, 4, 6, 4, 4,
@@ -692,7 +718,8 @@ const unsigned char hana_bmp[RGB_NUM][BMP_OUT_SIZE] = {
    29, 249, 249, 209, 164, 236, 239, 164, 206, 174, 7, 66, 168, 0, 7, 140, 0,
    193, 239, 50, 218, 185, 151, 207, 216, 173, 189, 75, 220, 203, 168, 224,
    205, 128, 0, 39, 20, 3, 42, 51, 52, 44, 23, 12, 10, 10, 20, 41, 10, 33, 34,
-   62, 68, 25, 18, 78, 86, 85, 69, 81, 49, 37, 35, 83, 91},   {191, 213, 194, 155, 143, 99, 147, 188, 175, 161, 193, 194, 164, 191, 186,
+   62, 68, 25, 18, 78, 86, 85, 69, 81, 49, 37, 35, 83, 91},
+  {191, 213, 194, 155, 143, 99, 147, 188, 175, 161, 193, 194, 164, 191, 186,
    177, 193, 165, 185, 211, 188, 146, 47, 18, 31, 38, 36, 53, 43, 33, 44, 22, 19,
    26, 17, 24, 8, 107, 187, 210, 190, 135, 94, 97, 74, 35, 17, 56, 84, 106, 98,
    77, 67, 46, 40, 32, 56, 66, 64, 47, 41, 39, 36, 46, 42, 55, 33, 33, 37, 38, 30,
@@ -995,7 +1022,8 @@ const unsigned char hana_bmp[RGB_NUM][BMP_OUT_SIZE] = {
    215, 167, 242, 248, 178, 209, 173, 9, 71, 177, 0, 8, 154, 3, 192, 241, 55,
    227, 191, 152, 216, 227, 185, 199, 83, 231, 207, 169, 233, 216, 140, 6, 47,
    31, 7, 43, 62, 64, 55, 35, 26, 24, 24, 34, 52, 22, 44, 46, 76, 82, 39, 32, 82,
-   102, 107, 86, 91, 50, 36, 37, 72, 73},   {236,222, 180, 150, 169, 149, 187, 212, 220, 170, 179, 189, 190, 241, 226, 201, 193, 189,
+   102, 107, 86, 91, 50, 36, 37, 72, 73},
+  {236,222, 180, 150, 169, 149, 187, 212, 220, 170, 179, 189, 190, 241, 226, 201, 193, 189,
    216, 231, 158, 147, 12, 0, 31, 62, 67, 73, 13, 34, 9, 0, 0, 3, 24, 48, 28, 147, 211,
    159, 169, 112, 101, 121, 94, 75, 41, 5, 32, 63, 61, 37, 31, 19, 25, 25, 4, 23, 27, 7,
    5, 12, 21, 39, 46, 50, 27, 10, 0, 21, 20, 0, 43, 39, 27, 0, 0, 0, 16, 0, 9, 3, 0, 1,
@@ -1262,3 +1290,42 @@ const unsigned char hana_bmp[RGB_NUM][BMP_OUT_SIZE] = {
 
 int out_width = 90;
 int out_length = 59;
+ */
+#define READ_MARKERS_REP 10
+int out_unread_marker[READ_MARKERS_REP];
+int i_marker;
+
+#define GET_SOF_REP 3
+int out_length_get_sof;
+int out_data_precision_get_sof;
+int out_p_jinfo_image_height_get_sof;
+int out_p_jinfo_image_width_get_sof;
+int out_p_jinfo_num_components_get_sof;
+int out_index_get_sof[GET_SOF_REP];
+int out_id_get_sof[GET_SOF_REP];
+int out_h_samp_factor_get_sof[GET_SOF_REP];
+int out_v_samp_factor_get_sof[GET_SOF_REP];
+int out_quant_tbl_no_get_sof[GET_SOF_REP];
+
+#define GET_SOS_REP 3
+int i_get_sos;
+int out_length_get_sos;
+int out_num_comp_get_sos;
+int out_comp_id_get_sos[GET_SOS_REP];
+int out_dc_tbl_no_get_sos[GET_SOS_REP];
+int out_ac_tbl_no_get_sos[GET_SOS_REP];
+
+#define GET_DHT_REP 4
+int i_get_dht;
+int out_length_get_dht[GET_DHT_REP];
+int out_index_get_dht[GET_DHT_REP];
+int out_count_get_dht[GET_DHT_REP];
+
+#define GET_DQT_REP 2
+int i_get_dqt;
+int out_length_get_dqt[GET_DQT_REP];
+int out_prec_get_dht[GET_DQT_REP];
+int out_num_get_dht[GET_DQT_REP];
+
+
+#endif /* INIT_H */

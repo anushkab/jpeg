@@ -37,22 +37,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "global.h"
-#include "decode.h"
+//#include "global.h"
+//#include "decode.h"
 #include "init.h"
-#include "marker.c"
-#include "chenidct.c"
-#include "huffman.h"
-#include "decode.c"
-#include "huffman.c"
-#include "jfif_read.c"
-#include "jpeg2bmp.c"
+//#include "marker.c"
+//#include "chenidct.c"
+//#include "huffman.h"
+//#include "decode.c"
+//#include "huffman.c"
+//#include "jfif_read.c"
+//#include "jpeg2bmp.c"
 
 int
 main ()
 {
+  init();
   main_result = 0;
-  jpeg2bmp_main ();
+  jpeg2bmp_main (hana_jpg, JpegFileBuf, OutData_comp_buf, hana_bmp,
+			&main_result, OutData_image_width, out_width, OutData_image_height, out_length);
 
   printf ("%d\n", main_result);
 

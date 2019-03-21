@@ -48,20 +48,24 @@ algorithms.
  *
  *  @(#) $Id: decode.c,v 1.2 2003/07/18 10:19:21 honda Exp $
  */
-void ChenIDct (int *x, int *y);
 
-int rgb_buf[4][RGB_NUM][DCTSIZE2];
+#include "decode.h"
+#include "init.h"
+#include <stdio.h>
 
-const int zigzag_index[64] =	/* Is zig-zag map for matrix -> scan array */
-{ 0, 1, 5, 6, 14, 15, 27, 28,
-  2, 4, 7, 13, 16, 26, 29, 42,
-  3, 8, 12, 17, 25, 30, 41, 43,
-  9, 11, 18, 24, 31, 40, 44, 53,
-  10, 19, 23, 32, 39, 45, 52, 54,
-  20, 22, 33, 38, 46, 51, 55, 60,
-  21, 34, 37, 47, 50, 56, 59, 61,
-  35, 36, 48, 49, 57, 58, 62, 63
-};
+//void ChenIDct (int *x, int *y);
+void ChenIDct_f2r_ChenIDct (int x[DCTSIZE2], int y[DCTSIZE2]);
+
+//const int zigzag_index[64] =	/* Is zig-zag map for matrix -> scan array */
+//{ 0, 1, 5, 6, 14, 15, 27, 28,
+//  2, 4, 7, 13, 16, 26, 29, 42,
+//  3, 8, 12, 17, 25, 30, 41, 43,
+//  9, 11, 18, 24, 31, 40, 44, 53,
+//  10, 19, 23, 32, 39, 45, 52, 54,
+//  20, 22, 33, 38, 46, 51, 55, 60,
+//  21, 34, 37, 47, 50, 56, 59, 61,
+//  35, 36, 48, 49, 57, 58, 62, 63
+//};
 
 
 /*
@@ -69,9 +73,21 @@ const int zigzag_index[64] =	/* Is zig-zag map for matrix -> scan array */
  * input imatrix and places the output in omatrix.
  */
 void
-IZigzagMatrix (int *imatrix, int *omatrix)
+//IZigzagMatrix_f2r_IZigzagMatrix (int *imatrix, int *omatrix)
+IZigzagMatrix_f2r_IZigzagMatrix (int imatrix[DCTSIZE2], int omatrix[DCTSIZE2])
 {
   int i;
+
+  const int zigzag_index[64] =	/* Is zig-zag map for matrix -> scan array */
+  { 0, 1, 5, 6, 14, 15, 27, 28,
+    2, 4, 7, 13, 16, 26, 29, 42,
+    3, 8, 12, 17, 25, 30, 41, 43,
+    9, 11, 18, 24, 31, 40, 44, 53,
+    10, 19, 23, 32, 39, 45, 52, 54,
+    20, 22, 33, 38, 46, 51, 55, 60,
+    21, 34, 37, 47, 50, 56, 59, 61,
+    35, 36, 48, 49, 57, 58, 62, 63
+  };
 
   for (i = 0; i < DCTSIZE2; i++)
     
@@ -88,7 +104,7 @@ IZigzagMatrix (int *imatrix, int *omatrix)
  * and puts the output int qmatrix.
  */
 void
-IQuantize (int *matrix, unsigned int *qmatrix)
+IQuantize_f2r_IQuantize (int matrix[DCTSIZE2], unsigned int qmatrix[DCTSIZE2])
 {
   int *mptr;
 
@@ -105,7 +121,7 @@ IQuantize (int *matrix, unsigned int *qmatrix)
  * This results in strictly positive values for all pixel coefficients.
  */
 void
-PostshiftIDctMatrix (int *matrix, int shift)
+PostshiftIDctMatrix (int matrix[DCTSIZE2], int shift)
 {
   int *mptr;
   for (mptr = matrix; mptr < matrix + DCTSIZE2; mptr++)
@@ -120,7 +136,7 @@ PostshiftIDctMatrix (int *matrix, int shift)
  * value greater than 255 (4095) or less than 0.
  */
 void
-BoundIDctMatrix (int *matrix, int Bound)
+BoundIDctMatrix_f2r_BoundIDctMatrix (int matrix[DCTSIZE2], int Bound)
 {
   int *mptr;
 
@@ -140,14 +156,14 @@ BoundIDctMatrix (int *matrix, int Bound)
 
 
 void
-WriteOneBlock (int *store, unsigned char *out_buf, int width, int height,
+WriteOneBlock_f2r_WriteOneBlock (int store[DCTSIZE2], unsigned char out_buf[DCTSIZE2], int width, int height,
 	       int voffs, int hoffs)
 {
   int i, e;
 
 
   /* Find vertical buffer offs. */
-  for (i = voffs; i < voffs + DCTSIZE; i++)
+  loop_1:for (i = voffs; i < voffs + DCTSIZE; i++)
     {
       if (i < height)
 	{
@@ -182,8 +198,8 @@ WriteOneBlock (int *store, unsigned char *out_buf, int width, int height,
  * ONLY for MCU 1:1:1
  */
 void
-WriteBlock (int *store, int *p_out_vpos, int *p_out_hpos,
-	    unsigned char *p_out_buf)
+WriteBlock_f2r_WriteBlock (int store[DCTSIZE2], int *p_out_vpos, int *p_out_hpos,
+	    unsigned char p_out_buf[DCTSIZE2], short p_jinfo_image_width, short p_jinfo_image_height, int p_jinfo_MCUWidth)
 {
   int voffs, hoffs;
 
@@ -196,7 +212,7 @@ WriteBlock (int *store, int *p_out_vpos, int *p_out_hpos,
   /*
    * Write block
    */
-  WriteOneBlock (store,
+  WriteOneBlock_f2r_WriteOneBlock (store,
 		 p_out_buf,
 		 p_jinfo_image_width, p_jinfo_image_height, voffs, hoffs);
 
@@ -220,8 +236,9 @@ WriteBlock (int *store, int *p_out_vpos, int *p_out_hpos,
  *  4:1:1
  */
 void
-Write4Blocks (int *store1, int *store2, int *store3, int *store4,
-	      int *p_out_vpos, int *p_out_hpos, unsigned char *p_out_buf)
+Write4Blocks_f2r_Write4Blocks(int store1[DCTSIZE2], int store2[DCTSIZE2], int store3[DCTSIZE2], int store4[DCTSIZE2],
+	      int *p_out_vpos, int *p_out_hpos, unsigned char p_out_buf[DCTSIZE2],
+	      short p_jinfo_image_width, short p_jinfo_image_height, int p_jinfo_MCUWidth)
 {
   int voffs, hoffs;
 
@@ -231,7 +248,7 @@ Write4Blocks (int *store1, int *store2, int *store3, int *store4,
    */
   voffs = *p_out_vpos * DCTSIZE;
   hoffs = *p_out_hpos * DCTSIZE;
-  WriteOneBlock (store1, p_out_buf,
+  WriteOneBlock_f2r_WriteOneBlock (store1, p_out_buf,
 		 p_jinfo_image_width, p_jinfo_image_height, voffs, hoffs);
 
   /*
@@ -239,7 +256,7 @@ Write4Blocks (int *store1, int *store2, int *store3, int *store4,
    * XX
    */
   hoffs += DCTSIZE;
-  WriteOneBlock (store2, p_out_buf,
+  WriteOneBlock_f2r_WriteOneBlock (store2, p_out_buf,
 		 p_jinfo_image_width, p_jinfo_image_height, voffs, hoffs);
 
   /*
@@ -248,7 +265,7 @@ Write4Blocks (int *store1, int *store2, int *store3, int *store4,
    */
   voffs += DCTSIZE;
   hoffs -= DCTSIZE;
-  WriteOneBlock (store3, p_out_buf,
+  WriteOneBlock_f2r_WriteOneBlock (store3, p_out_buf,
 		 p_jinfo_image_width, p_jinfo_image_height, voffs, hoffs);
 
 
@@ -257,7 +274,7 @@ Write4Blocks (int *store1, int *store2, int *store3, int *store4,
    * XO
    */
   hoffs += DCTSIZE;
-  WriteOneBlock (store4,
+  WriteOneBlock_f2r_WriteOneBlock (store4,
 		 p_out_buf, p_jinfo_image_width, p_jinfo_image_height,
 		 voffs, hoffs);
 
@@ -283,7 +300,7 @@ Write4Blocks (int *store1, int *store2, int *store3, int *store4,
  * Transform from Yuv into RGB
  */
 void
-YuvToRgb (int p, int *y_buf, int *u_buf, int *v_buf)
+YuvToRgb_f2r_YuvToRgb (int p, int y_buf[DCTSIZE2], int u_buf[DCTSIZE2], int v_buf[DCTSIZE2], int rgb_buf[4][RGB_NUM][DCTSIZE2])
 {
   int r, g, b;
   int y, u, v;
@@ -326,31 +343,46 @@ YuvToRgb (int p, int *y_buf, int *u_buf, int *v_buf)
  * Decode one block
  */
 void
-decode_block (int comp_no, int *out_buf, int *HuffBuff)
+decode_block (int comp_no, int out_buf[DCTSIZE2], int HuffBuff[DCTSIZE2], unsigned int p_jinfo_quant_tbl_quantval[NUM_QUANT_TBLS][DCTSIZE2], char p_jinfo_comps_info_quant_tbl_no[NUM_COMPONENT],
+		char p_jinfo_comps_info_dc_tbl_no[NUM_COMPONENT], int p_jinfo_dc_xhuff_tbl_huffval[NUM_HUFF_TBLS][257],
+		int p_jinfo_dc_dhuff_tbl_ml[NUM_HUFF_TBLS], int p_jinfo_dc_dhuff_tbl_maxcode[NUM_HUFF_TBLS][36], int p_jinfo_dc_dhuff_tbl_mincode[NUM_HUFF_TBLS][36], int p_jinfo_dc_dhuff_tbl_valptr[NUM_HUFF_TBLS][36],
+		unsigned char CurHuffReadBuf[JPEG_FILE_SIZE], int p_jinfo_ac_xhuff_tbl_huffval[NUM_HUFF_TBLS][257], int p_jinfo_ac_dhuff_tbl_ml[NUM_HUFF_TBLS], int p_jinfo_ac_dhuff_tbl_maxcode[NUM_HUFF_TBLS][36], int p_jinfo_ac_dhuff_tbl_mincode[NUM_HUFF_TBLS][36],
+		int p_jinfo_ac_dhuff_tbl_valptr[NUM_HUFF_TBLS][36])
 {
   int QuantBuff[DCTSIZE2];
   unsigned int *p_quant_tbl;
 
-  DecodeHuffMCU (HuffBuff, comp_no);
+  DecodeHuffMCU (HuffBuff, comp_no, p_jinfo_comps_info_dc_tbl_no, p_jinfo_dc_xhuff_tbl_huffval,
+		  p_jinfo_dc_dhuff_tbl_ml, p_jinfo_dc_dhuff_tbl_maxcode, p_jinfo_dc_dhuff_tbl_mincode, p_jinfo_dc_dhuff_tbl_valptr, CurHuffReadBuf,
+		  p_jinfo_ac_xhuff_tbl_huffval, p_jinfo_ac_dhuff_tbl_ml, p_jinfo_ac_dhuff_tbl_maxcode, p_jinfo_ac_dhuff_tbl_mincode,
+		  p_jinfo_ac_dhuff_tbl_valptr);
 
-  IZigzagMatrix (HuffBuff, QuantBuff);
+  IZigzagMatrix_f2r_IZigzagMatrix (HuffBuff, QuantBuff);
 
   p_quant_tbl =
     &p_jinfo_quant_tbl_quantval[(int)p_jinfo_comps_info_quant_tbl_no[comp_no]][DCTSIZE2];
-  IQuantize (QuantBuff, p_quant_tbl);
+  IQuantize_f2r_IQuantize (QuantBuff, p_quant_tbl);
 
-  ChenIDct (QuantBuff, out_buf);
+  ChenIDct_f2r_ChenIDct (QuantBuff, out_buf);
+  //ChenIDct (*QuantBuff, *out_buf);
 
   PostshiftIDctMatrix (out_buf, IDCT_SHIFT);
 
-  BoundIDctMatrix (out_buf, IDCT_BOUNT);
+  BoundIDctMatrix_f2r_BoundIDctMatrix (out_buf, IDCT_BOUNT);
 
 }
 
 
 void
 decode_start (int *out_data_image_width, int *out_data_image_height,
-	      int *out_data_comp_vpos, int *out_data_comp_hpos)
+	      int out_data_comp_vpos[RGB_NUM], int out_data_comp_hpos[RGB_NUM],
+	      unsigned int p_jinfo_quant_tbl_quantval[NUM_QUANT_TBLS][DCTSIZE2], char p_jinfo_comps_info_quant_tbl_no[NUM_COMPONENT],
+	      unsigned char CurHuffReadBuf[JPEG_FILE_SIZE], unsigned char p_jinfo_jpeg_data[JPEG_FILE_SIZE], short p_jinfo_image_width, short p_jinfo_image_height, int p_jinfo_MCUWidth,
+	      int p_jinfo_smp_fact, int p_jinfo_NumMCU,
+	      char p_jinfo_comps_info_dc_tbl_no[NUM_COMPONENT], int p_jinfo_dc_xhuff_tbl_huffval[NUM_HUFF_TBLS][257], int p_jinfo_dc_dhuff_tbl_ml[NUM_HUFF_TBLS],
+	      int p_jinfo_dc_dhuff_tbl_maxcode[NUM_HUFF_TBLS][36], int p_jinfo_dc_dhuff_tbl_mincode[NUM_HUFF_TBLS][36], int p_jinfo_dc_dhuff_tbl_valptr[NUM_HUFF_TBLS][36],
+	      int rgb_buf[4][RGB_NUM][DCTSIZE2], unsigned char OutData_comp_buf[RGB_NUM][BMP_OUT_SIZE], int p_jinfo_ac_xhuff_tbl_huffval[NUM_HUFF_TBLS][257], int p_jinfo_ac_dhuff_tbl_ml[NUM_HUFF_TBLS], int p_jinfo_ac_dhuff_tbl_maxcode[NUM_HUFF_TBLS][36], int p_jinfo_ac_dhuff_tbl_mincode[NUM_HUFF_TBLS][36],
+			int p_jinfo_ac_dhuff_tbl_valptr[NUM_HUFF_TBLS][36])
 {
   int i;
   int CurrentMCU = 0;
@@ -363,7 +395,7 @@ decode_start (int *out_data_image_width, int *out_data_image_height,
   /*
    * Initial value of DC element is 0
    */
-  for (i = 0; i < NUM_COMPONENT; i++)
+  loop_1:for (i = 0; i < NUM_COMPONENT; i++)
     {
       HuffBuff[i][0] = 0;
     }
@@ -396,19 +428,21 @@ decode_start (int *out_data_image_width, int *out_data_image_height,
 
 	  for (i = 0; i < NUM_COMPONENT; i++)
 	    {
-	      decode_block (i, IDCTBuff[i], HuffBuff[i]);
+	      decode_block (i, IDCTBuff[i], HuffBuff[i], p_jinfo_quant_tbl_quantval, p_jinfo_comps_info_quant_tbl_no, p_jinfo_comps_info_dc_tbl_no,
+	    		  p_jinfo_dc_xhuff_tbl_huffval, p_jinfo_dc_dhuff_tbl_ml, p_jinfo_dc_dhuff_tbl_maxcode, p_jinfo_dc_dhuff_tbl_mincode, p_jinfo_dc_dhuff_tbl_valptr, CurHuffReadBuf,
+	    		  p_jinfo_ac_xhuff_tbl_huffval, p_jinfo_ac_dhuff_tbl_ml, p_jinfo_ac_dhuff_tbl_maxcode, p_jinfo_ac_dhuff_tbl_mincode, p_jinfo_ac_dhuff_tbl_valptr);
 	    }
 
 
-	  YuvToRgb (0, IDCTBuff[0], IDCTBuff[1], IDCTBuff[2]);
+	  YuvToRgb_f2r_YuvToRgb (0, IDCTBuff[0], IDCTBuff[1], IDCTBuff[2], rgb_buf);
 	  /*
 	   * Write
 	   */
 	  for (i = 0; i < RGB_NUM; i++)
 	    {
-	      WriteBlock (&rgb_buf[0][i][0],
+	      WriteBlock_f2r_WriteBlock (&rgb_buf[0][i][0],
 			  &out_data_comp_vpos[i],
-			  &out_data_comp_hpos[i], &OutData_comp_buf[i][0]);
+			  &out_data_comp_hpos[i], &OutData_comp_buf[i][0], p_jinfo_image_width, p_jinfo_image_height, p_jinfo_MCUWidth);
 	    }
 	  CurrentMCU++;
 	}
@@ -429,32 +463,39 @@ decode_start (int *out_data_image_width, int *out_data_image_height,
 
 	  for (i = 0; i < 4; i++)
 	    {
-	      decode_block (0, IDCTBuff[i], HuffBuff[0]);
+	      decode_block (0, IDCTBuff[i], HuffBuff[0], p_jinfo_quant_tbl_quantval, p_jinfo_comps_info_quant_tbl_no, p_jinfo_comps_info_dc_tbl_no,
+	    		  p_jinfo_dc_xhuff_tbl_huffval, p_jinfo_dc_dhuff_tbl_ml, p_jinfo_dc_dhuff_tbl_maxcode, p_jinfo_dc_dhuff_tbl_mincode, p_jinfo_dc_dhuff_tbl_valptr, CurHuffReadBuf,
+	    		  p_jinfo_ac_xhuff_tbl_huffval, p_jinfo_ac_dhuff_tbl_ml, p_jinfo_ac_dhuff_tbl_maxcode, p_jinfo_ac_dhuff_tbl_mincode, p_jinfo_ac_dhuff_tbl_valptr);
 	    }
 
 	  /* Decode U */
-	  decode_block (1, IDCTBuff[4], HuffBuff[1]);
+	  decode_block (1, IDCTBuff[4], HuffBuff[1], p_jinfo_quant_tbl_quantval, p_jinfo_comps_info_quant_tbl_no, p_jinfo_comps_info_dc_tbl_no,
+			  p_jinfo_dc_xhuff_tbl_huffval, p_jinfo_dc_dhuff_tbl_ml, p_jinfo_dc_dhuff_tbl_maxcode, p_jinfo_dc_dhuff_tbl_mincode, p_jinfo_dc_dhuff_tbl_valptr, CurHuffReadBuf,
+			  p_jinfo_ac_xhuff_tbl_huffval, p_jinfo_ac_dhuff_tbl_ml, p_jinfo_ac_dhuff_tbl_maxcode, p_jinfo_ac_dhuff_tbl_mincode, p_jinfo_ac_dhuff_tbl_valptr);
 
 	  /* Decode V */
-	  decode_block (2, IDCTBuff[5], HuffBuff[2]);
+	  decode_block (2, IDCTBuff[5], HuffBuff[2], p_jinfo_quant_tbl_quantval, p_jinfo_comps_info_quant_tbl_no, p_jinfo_comps_info_dc_tbl_no,
+			  p_jinfo_dc_xhuff_tbl_huffval, p_jinfo_dc_dhuff_tbl_ml, p_jinfo_dc_dhuff_tbl_maxcode, p_jinfo_dc_dhuff_tbl_mincode, p_jinfo_dc_dhuff_tbl_valptr, CurHuffReadBuf,
+			  p_jinfo_ac_xhuff_tbl_huffval, p_jinfo_ac_dhuff_tbl_ml, p_jinfo_ac_dhuff_tbl_maxcode, p_jinfo_ac_dhuff_tbl_mincode, p_jinfo_ac_dhuff_tbl_valptr);
 
 
 	  /* Transform from Yuv into RGB */
 
 	  for (i = 0; i < 4; i++)
 	    {
-	      YuvToRgb (i, IDCTBuff[i], IDCTBuff[4], IDCTBuff[5]);
+	      YuvToRgb_f2r_YuvToRgb (i, IDCTBuff[i], IDCTBuff[4], IDCTBuff[5], rgb_buf);
 	    }
 
 
 	  for (i = 0; i < RGB_NUM; i++)
 	    {
-	      Write4Blocks (&rgb_buf[0][i][0],
+	      Write4Blocks_f2r_Write4Blocks (&rgb_buf[0][i][0],
 			    &rgb_buf[1][i][0],
 			    &rgb_buf[2][i][0],
 			    &rgb_buf[3][i][0],
 			    &out_data_comp_vpos[i],
-			    &out_data_comp_hpos[i], &OutData_comp_buf[i][0]);
+			    &out_data_comp_hpos[i], &OutData_comp_buf[i][0],
+			    p_jinfo_image_width, p_jinfo_image_height, p_jinfo_MCUWidth);
 	    }
 
 

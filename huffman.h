@@ -35,5 +35,13 @@
  *
  */
 
-unsigned char *CurHuffReadBuf;
-void DecodeHuffMCU (int *out_buf, int num_cmp);
+#ifndef _HUFFMAN_H_
+#define _HUFFMAN_H_
+
+//unsigned char *CurHuffReadBuf;
+void DecodeHuffMCU (int out_buf[DCTSIZE2], int num_cmp, char p_jinfo_comps_info_dc_tbl_no[NUM_COMPONENT], int p_jinfo_dc_xhuff_tbl_huffval[NUM_HUFF_TBLS][257],
+		int p_jinfo_dc_dhuff_tbl_ml[NUM_HUFF_TBLS], int p_jinfo_dc_dhuff_tbl_maxcode[NUM_HUFF_TBLS][36], int p_jinfo_dc_dhuff_tbl_mincode[NUM_HUFF_TBLS][36], int p_jinfo_dc_dhuff_tbl_valptr[NUM_HUFF_TBLS][36],
+		unsigned char CurHuffReadBuf[JPEG_FILE_SIZE], int p_jinfo_ac_xhuff_tbl_huffval[NUM_HUFF_TBLS][257], int p_jinfo_ac_dhuff_tbl_ml[NUM_HUFF_TBLS], int p_jinfo_ac_dhuff_tbl_maxcode[NUM_HUFF_TBLS][36], int p_jinfo_ac_dhuff_tbl_mincode[NUM_HUFF_TBLS][36],
+		int p_jinfo_ac_dhuff_tbl_valptr[NUM_HUFF_TBLS][36]);
+
+#endif /* HUFFMAN_H */

@@ -103,6 +103,6 @@ int p_jinfo_MCUWidth;
 int p_jinfo_MCUHeight;
 int p_jinfo_NumMCU;
 
-unsigned char *p_jinfo_jpeg_data;
+int rgb_buf[4][RGB_NUM][DCTSIZE2];
 
 #endif /* _DECODE_H_ */

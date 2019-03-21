@@ -51,6 +51,9 @@ vol. COM-25, pp. 1004-1009, Sept 1977.
 ************************************************************
 */
 
+#include "decode.h"
+#include <stdio.h>
+
 #define LS(r,s) ((r) << (s))
 #define RS(r,s) ((r) >> (s))	/* Caution with rounding... */
 
@@ -76,7 +79,8 @@ vol. COM-25, pp. 1004-1009, Sept 1977.
  * defined (and storage allocated) before this routine is called.
  */
 void
-ChenIDct (int *x, int *y)
+ChenIDct_f2r_ChenIDct (int x[DCTSIZE2], int y[DCTSIZE2])
+//ChenIDct_f2r_ChenIDct (int *x, int *y)
 {
   register int i;
   register int *aptr;
@@ -86,9 +90,9 @@ ChenIDct (int *x, int *y)
 
   /* Loop over columns */
 
-  for (i = 0; i < 8; i++)
+  columns_loop:for (i = 0; i < 8; i++)
     {
-      aptr = x + i;
+	  aptr = x + i;
       b0 = LS (*aptr, 2);
       aptr += 8;
       a0 = LS (*aptr, 2);
@@ -139,6 +143,7 @@ ChenIDct (int *x, int *y)
       c2 = MSCALE (c1d4 * (a2 + a1));
       c3 = a3;
 
+//      aptr = y + i;
       aptr = y + i;
       *aptr = b0 + c3;
       aptr += 8;
@@ -159,7 +164,7 @@ ChenIDct (int *x, int *y)
 
   /* Loop over rows */
 
-  for (i = 0; i < 8; i++)
+  rows_loop:for (i = 0; i < 8; i++)
     {
       aptr = y + LS (i, 3);
       b0 = *(aptr++);
@@ -208,6 +213,7 @@ ChenIDct (int *x, int *y)
       c2 = MSCALE (c1d4 * (a2 + a1));
       c3 = a3;
 
+//      aptr = y + LS (i, 3);
       aptr = y + LS (i, 3);
       *(aptr++) = b0 + c3;
       *(aptr++) = b1 + c2;
@@ -224,7 +230,8 @@ ChenIDct (int *x, int *y)
      of 16 that must be removed.
    */
 
-  for (i = 0, aptr = y; i < 64; i++, aptr++)
+//  for (i = 0, aptr = y; i < 64; i++, aptr++)
+  accuracy_loop:for (i = 0, aptr = y; i < 64; i++, aptr++)
     *aptr = (((*aptr < 0) ? (*aptr - 8) : (*aptr + 8)) / 16);
 }
 

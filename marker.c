@@ -15,7 +15,7 @@
 |       correctly executed.                                                |
 |    4. Please follow the copyright of each benchmark program.             |
 +--------------------------------------------------------------------------+
-*/
+ */
 /*
  *  Read the head of the marker
  *
@@ -37,16 +37,20 @@ have been advised of such possibilities.  Any public reference or
 advertisement of this source code should refer to it as the Portable
 Video Research Group (PVRG) code, and not by any author(s) (or
 Stanford University) name.
-*************************************************************/
+ *************************************************************/
 /*
-************************************************************
+ ************************************************************
 marker.c
 
 This file contains the Marker library which uses the direct buffer
 access routines bgetc...
 
-************************************************************
-*/
+ ************************************************************
+ */
+#include <stdlib.h>
+#include <stdio.h>
+#include "init.h"
+#include "global.h"
 
 /* Only for the marker needed at the baseline */
 /* JPEG marker codes */
@@ -62,11 +66,10 @@ access routines bgetc...
 | * Test Vectors (added for CHStone) for "read_markers"                    |
 |     out_unread_marker : expected output data                             |
 +--------------------------------------------------------------------------+
-*/
-#define READ_MARKERS_REP 10
-int i_marker = 0;
-const int out_unread_marker[READ_MARKERS_REP] =
-  { 0xd8, 0xe0, 0xdb, 0xdb, 0xc0, 0xc4, 0xc4, 0xc4, 0xc4, 0xda };
+ */
+//int i_marker = 0;
+//const int out_unread_marker[READ_MARKERS_REP] =
+//{ 0xd8, 0xe0, 0xdb, 0xdb, 0xc0, 0xc4, 0xc4, 0xc4, 0xc4, 0xda };
 
 /*
 +--------------------------------------------------------------------------+
@@ -82,146 +85,150 @@ const int out_unread_marker[READ_MARKERS_REP] =
 |     out_v_samp_factor_get_sof : expected output data                     |
 |     out_quant_tbl_no_get_sof : expected output data                      |
 +--------------------------------------------------------------------------+
-*/
-#define GET_SOF_REP 3
-int out_length_get_sof = 17;
-int out_data_precision_get_sof = 8;
-int out_p_jinfo_image_height_get_sof = 59;
-int out_p_jinfo_image_width_get_sof = 90;
-int out_p_jinfo_num_components_get_sof = 3;
-const int out_index_get_sof[GET_SOF_REP] = { 0, 1, 2 };
-const int out_id_get_sof[GET_SOF_REP] = { 1, 2, 3 };
-const int out_h_samp_factor_get_sof[GET_SOF_REP] = { 2, 1, 1 };
-const int out_v_samp_factor_get_sof[GET_SOF_REP] = { 2, 1, 1 };
-const int out_quant_tbl_no_get_sof[GET_SOF_REP] = { 0, 1, 1 };
-
-/*
-+--------------------------------------------------------------------------+
-| * Test Vectors (added for CHStone) for "get_sos"                         |
-|     out_length_get_sos : expected output data                            |
-|     out_num_comp_get_sos : expected output data                          |
-|     out_comp_id_get_sos : expected output data                           |
-|     out_dc_tbl_no_get_sos : expected output data                         |
-|     out_ac_tbl_no_get_sos : expected output data                         |
-+--------------------------------------------------------------------------+
-*/
-#define GET_SOS_REP 3
-int i_get_sos = 0;
-int out_length_get_sos = 12;
-int out_num_comp_get_sos = 3;
-const int out_comp_id_get_sos[GET_SOS_REP] = { 1, 2, 3 };
-const int out_dc_tbl_no_get_sos[GET_SOS_REP] = { 0, 1, 1 };
-const int out_ac_tbl_no_get_sos[GET_SOS_REP] = { 0, 1, 1 };
-
-/*
-+--------------------------------------------------------------------------+
-| * Test Vectors (added for CHStone) for "get_dht"                         |
-|     out_length_get_dht : expected output data                            |
-|     out_index_get_dht : expected output data                             |
-|     out_count_get_dht : expected output data                             |
-+--------------------------------------------------------------------------+
-*/
-#define GET_DHT_REP 4
-int i_get_dht = 0;
-const int out_length_get_dht[GET_DHT_REP] = { 29, 179, 29, 179 };
-const int out_index_get_dht[GET_DHT_REP] = { 0x0, 0x10, 0x1, 0x11 };
-const int out_count_get_dht[GET_DHT_REP] = { 12, 162, 12, 162 };
-
-/*
-+--------------------------------------------------------------------------+
-| * Test Vectors (added for CHStone) for "get_dqt"                         |
-|     out_length_get_dqt : expected output data                            |
-|     out_prec_get_dht : expected output data                              |
-|     out_num_get_dht : expected output data                               |
-+--------------------------------------------------------------------------+
-*/
-#define GET_DQT_REP 2
-int i_get_dqt = 0;
-const int out_length_get_dqt[GET_DQT_REP] = { 65, 65 };
-const int out_prec_get_dht[GET_DQT_REP] = { 0, 0 };
-const int out_num_get_dht[GET_DQT_REP] = { 0, 1 };
-
-
-/*
- * Initialize Quantization Table
  */
-const int izigzag_index[64] = { 0, 1, 8, 16, 9, 2, 3, 10,
-  17, 24, 32, 25, 18, 11, 4, 5,
-  12, 19, 26, 33, 40, 48, 41, 34,
-  27, 20, 13, 6, 7, 14, 21, 28,
-  35, 42, 49, 56, 57, 50, 43, 36,
-  29, 22, 15, 23, 30, 37, 44, 51,
-  58, 59, 52, 45, 38, 31, 39, 46,
-  53, 60, 61, 54, 47, 55, 62, 63
-};
+//#define GET_SOF_REP 3
+//int out_length_get_sof = 17;
+//int out_data_precision_get_sof = 8;
+//int out_p_jinfo_image_height_get_sof = 59;
+//int out_p_jinfo_image_width_get_sof = 90;
+//int out_p_jinfo_num_components_get_sof = 3;
+//const int out_index_get_sof[GET_SOF_REP] = { 0, 1, 2 };
+//const int out_id_get_sof[GET_SOF_REP] = { 1, 2, 3 };
+//const int out_h_samp_factor_get_sof[GET_SOF_REP] = { 2, 1, 1 };
+//const int out_v_samp_factor_get_sof[GET_SOF_REP] = { 2, 1, 1 };
+//const int out_quant_tbl_no_get_sof[GET_SOF_REP] = { 0, 1, 1 };
+
+///*
+//+--------------------------------------------------------------------------+
+//| * Test Vectors (added for CHStone) for "get_sos"                         |
+//|     out_length_get_sos : expected output data                            |
+//|     out_num_comp_get_sos : expected output data                          |
+//|     out_comp_id_get_sos : expected output data                           |
+//|     out_dc_tbl_no_get_sos : expected output data                         |
+//|     out_ac_tbl_no_get_sos : expected output data                         |
+//+--------------------------------------------------------------------------+
+// */
+//#define GET_SOS_REP 3
+//int i_get_sos = 0;
+//int out_length_get_sos = 12;
+//int out_num_comp_get_sos = 3;
+//const int out_comp_id_get_sos[GET_SOS_REP] = { 1, 2, 3 };
+//const int out_dc_tbl_no_get_sos[GET_SOS_REP] = { 0, 1, 1 };
+//const int out_ac_tbl_no_get_sos[GET_SOS_REP] = { 0, 1, 1 };
+//
+///*
+//+--------------------------------------------------------------------------+
+//| * Test Vectors (added for CHStone) for "get_dht"                         |
+//|     out_length_get_dht : expected output data                            |
+//|     out_index_get_dht : expected output data                             |
+//|     out_count_get_dht : expected output data                             |
+//+--------------------------------------------------------------------------+
+// */
+//#define GET_DHT_REP 4
+//int i_get_dht = 0;
+//const int out_length_get_dht[GET_DHT_REP] = { 29, 179, 29, 179 };
+//const int out_index_get_dht[GET_DHT_REP] = { 0x0, 0x10, 0x1, 0x11 };
+//const int out_count_get_dht[GET_DHT_REP] = { 12, 162, 12, 162 };
+//
+///*
+//+--------------------------------------------------------------------------+
+//| * Test Vectors (added for CHStone) for "get_dqt"                         |
+//|     out_length_get_dqt : expected output data                            |
+//|     out_prec_get_dht : expected output data                              |
+//|     out_num_get_dht : expected output data                               |
+//+--------------------------------------------------------------------------+
+// */
+//#define GET_DQT_REP 2
+//int i_get_dqt = 0;
+//const int out_length_get_dqt[GET_DQT_REP] = { 65, 65 };
+//const int out_prec_get_dht[GET_DQT_REP] = { 0, 0 };
+//const int out_num_get_dht[GET_DQT_REP] = { 0, 1 };
+
+
+///*
+// * Initialize Quantization Table
+// */
+//const int izigzag_index[64] = { 0, 1, 8, 16, 9, 2, 3, 10,
+//		17, 24, 32, 25, 18, 11, 4, 5,
+//		12, 19, 26, 33, 40, 48, 41, 34,
+//		27, 20, 13, 6, 7, 14, 21, 28,
+//		35, 42, 49, 56, 57, 50, 43, 36,
+//		29, 22, 15, 23, 30, 37, 44, 51,
+//		58, 59, 52, 45, 38, 31, 39, 46,
+//		53, 60, 61, 54, 47, 55, 62, 63
+//};
 
 
 /*
  *  Read Buffer
  */
-static unsigned char *ReadBuf;
-
+//static unsigned char *ReadBuf;
 
 /*
  *  Read from Buffer
  */
 int
-read_byte (void)
+read_byte (unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset)
 {
-  return *ReadBuf++;
+	unsigned char ret = ReadBuf[*offset];
+	(*offset)++;
+	return ret;
+
 }
 
 
 short
-read_word (void)
+read_word (unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset)
 {
-  short c;
+	short c;
 
-  c = *ReadBuf++ << 8;
-  c |= *ReadBuf++;
+	c = ReadBuf[*offset] << 8;
+	(*offset)++;
+	c |= ReadBuf[*offset];
+	(*offset)++;
 
-  return c;
+	return c;
 }
 
 int
-first_marker (void)
+first_marker (int * main_result, unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset)
 {
-  int c1, c2;
-  c1 = read_byte ();
-  c2 = read_byte ();
+	int c1, c2;
+	c1 = read_byte (ReadBuf, offset);
+	c2 = read_byte (ReadBuf, offset);
 
-  if (c1 != 0xFF || c2 != M_SOI)
-    {
-      main_result++;
-      printf ("Not Jpeg File!\n");
-      EXIT;
-    }
-
-  return c2;
-}
-
-
-int
-next_marker (void)
-{
-  int c;
-
-  for (;;)
-    {
-      c = read_byte ();
-
-      while (c != 0xff)
-	c = read_byte ();
-
-      do
+	if (c1 != 0xFF || c2 != M_SOI)
 	{
-	  c = read_byte ();
+		(*main_result)++;
+		printf ("Not Jpeg File!\n");
+		EXIT;
 	}
-      while (c == 0xff);
-      if (c != 0)
-	break;
-    }
-  return c;
+
+	return c2;
+}
+
+
+int
+next_marker (unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset)
+{
+	int c;
+
+	for (;;)
+	{
+		c = read_byte (ReadBuf, offset);
+
+		while (c != 0xff)
+			c = read_byte (ReadBuf, offset);
+
+		do
+		{
+			c = read_byte (ReadBuf, offset);
+		}
+		while (c == 0xff);
+		if (c != 0)
+			break;
+	}
+	return c;
 }
 
 
@@ -229,194 +236,203 @@ next_marker (void)
  *  Baseline DCT ( Huffman )  
  */
 void
-get_sof ()
+get_sof (int * main_result, unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset, char * p_jinfo_data_precision, short * p_jinfo_image_height, short * p_jinfo_image_width, char * p_jinfo_num_components,
+		int out_length_get_sof, int out_data_precision_get_sof, int out_p_jinfo_image_height_get_sof, int out_p_jinfo_image_width_get_sof, int out_p_jinfo_num_components_get_sof,
+		char p_jinfo_comps_info_index[NUM_COMPONENT], char p_jinfo_comps_info_id[NUM_COMPONENT], char p_jinfo_comps_info_h_samp_factor[NUM_COMPONENT], char p_jinfo_comps_info_v_samp_factor[NUM_COMPONENT], char p_jinfo_comps_info_quant_tbl_no[NUM_COMPONENT],
+		int out_index_get_sof[GET_SOF_REP], int out_id_get_sof[GET_SOF_REP], int out_h_samp_factor_get_sof[GET_SOF_REP], int out_v_samp_factor_get_sof[GET_SOF_REP], int out_quant_tbl_no_get_sof[GET_SOF_REP], int * p_jinfo_smp_fact)
 {
-  int ci, c;
-  int length;
-  char *p_comp_info_index;
-  char *p_comp_info_id;
-  char *p_comp_info_h_samp_factor;
-  char *p_comp_info_v_samp_factor;
-  char *p_comp_info_quant_tbl_no;
+	int ci, c;
+	int length;
+	char *p_comp_info_index;
+	char *p_comp_info_id;
+	char *p_comp_info_h_samp_factor;
+	char *p_comp_info_v_samp_factor;
+	char *p_comp_info_quant_tbl_no;
 
-  length = read_word ();
-  p_jinfo_data_precision = read_byte ();
-  p_jinfo_image_height = read_word ();
-  p_jinfo_image_width = read_word ();
-  p_jinfo_num_components = read_byte ();
+	length = read_word (ReadBuf, offset);
+	*p_jinfo_data_precision = read_byte (ReadBuf, offset);
+	*p_jinfo_image_height = read_word (ReadBuf, offset);
+	*p_jinfo_image_width = read_word (ReadBuf, offset);
+	*p_jinfo_num_components = read_byte (ReadBuf, offset);
 
-  printf ("length         = %d\n", length);
-  printf ("data_precision = %d\n", p_jinfo_data_precision);
-  printf ("image_height   = %d\n", p_jinfo_image_height);
-  printf ("image_width    = %d\n", p_jinfo_image_width);
-  printf ("num_components = %d\n", p_jinfo_num_components);
+	printf ("length         = %d\n", length);
+	printf ("data_precision = %d\n", *p_jinfo_data_precision);
+	printf ("image_height   = %d\n", *p_jinfo_image_height);
+	printf ("image_width    = %d\n", *p_jinfo_image_width);
+	printf ("num_components = %d\n", *p_jinfo_num_components);
 
-  if (length != out_length_get_sof)
-    {
-        main_result++;
-    }
-  if (p_jinfo_data_precision != out_data_precision_get_sof)
-    {
-        main_result++;
-    }
-  if (p_jinfo_image_height != out_p_jinfo_image_height_get_sof)
-    {
-        main_result++;
-    }
-  if (p_jinfo_image_width != out_p_jinfo_image_width_get_sof)
-    {
-        main_result++;
-    }
-  if (p_jinfo_num_components != out_p_jinfo_num_components_get_sof)
-    {
-        main_result++;
-    }
-
-  length -= 8;
-
-  /* Omit error check */
-
-  /* Check components */
-  for (ci = 0; ci < p_jinfo_num_components; ci++)
-    {
-      p_comp_info_index = &p_jinfo_comps_info_index[ci];
-      p_comp_info_id = &p_jinfo_comps_info_id[ci];
-      p_comp_info_h_samp_factor = &p_jinfo_comps_info_h_samp_factor[ci];
-      p_comp_info_v_samp_factor = &p_jinfo_comps_info_v_samp_factor[ci];
-      p_comp_info_quant_tbl_no = &p_jinfo_comps_info_quant_tbl_no[ci];
-
-      *p_comp_info_index = ci;
-      *p_comp_info_id = read_byte ();
-      c = read_byte ();
-      *p_comp_info_h_samp_factor = (c >> 4) & 15;
-      *p_comp_info_v_samp_factor = (c) & 15;
-      *p_comp_info_quant_tbl_no = read_byte ();
-
-      printf (" index         = %d\n", *p_comp_info_index);
-      printf (" id            = %d\n", *p_comp_info_id);
-      printf (" h_samp_factor = %d\n", *p_comp_info_h_samp_factor);
-      printf (" v_samp_factor = %d\n", *p_comp_info_v_samp_factor);
-      printf (" quant_tbl_no  = %d\n\n", *p_comp_info_quant_tbl_no);
-
-      if (*p_comp_info_index != out_index_get_sof[ci])
+	if (length != out_length_get_sof)
 	{
-		main_result++;
+		(*main_result)++;
 	}
-      if (*p_comp_info_id != out_id_get_sof[ci])
+	if (*p_jinfo_data_precision != out_data_precision_get_sof)
 	{
-		main_result++;
+		(*main_result)++;
 	}
-      if (*p_comp_info_h_samp_factor != out_h_samp_factor_get_sof[ci])
+	if (*p_jinfo_image_height != out_p_jinfo_image_height_get_sof)
 	{
-		main_result++;
+		(*main_result)++;
 	}
-      if (*p_comp_info_v_samp_factor != out_v_samp_factor_get_sof[ci])
+	if (*p_jinfo_image_width != out_p_jinfo_image_width_get_sof)
 	{
-		main_result++;
+		(*main_result)++;
 	}
-      if (*p_comp_info_quant_tbl_no != out_quant_tbl_no_get_sof[ci])
+	if (*p_jinfo_num_components != out_p_jinfo_num_components_get_sof)
 	{
-		main_result++;
+		(*main_result)++;
 	}
 
-    }
+	length -= 8;
 
-  /*
-   *  Determine Sampling Factor
-   *  Only 1_1_1 and 4_1_1 are supported
-   */
-  if (p_jinfo_comps_info_h_samp_factor[0] == 2)
-    {
-      p_jinfo_smp_fact = SF4_1_1;
-      printf ("\nSampling Factor is 4:1:1\n");
-    }
-  else
-    {
-      p_jinfo_smp_fact = SF1_1_1;
-      printf ("\nSampling Factor is 1:1:1\n");
-    }
+	/* Omit error check */
+
+	/* Check components */
+	for (ci = 0; ci < *p_jinfo_num_components; ci++)
+	{
+		p_comp_info_index = &p_jinfo_comps_info_index[ci];
+		p_comp_info_id = &p_jinfo_comps_info_id[ci];
+		p_comp_info_h_samp_factor = &p_jinfo_comps_info_h_samp_factor[ci];
+		p_comp_info_v_samp_factor = &p_jinfo_comps_info_v_samp_factor[ci];
+		p_comp_info_quant_tbl_no = &p_jinfo_comps_info_quant_tbl_no[ci];
+
+		*p_comp_info_index = ci;
+		*p_comp_info_id = read_byte (ReadBuf, offset);
+		c = read_byte (ReadBuf, offset);
+		*p_comp_info_h_samp_factor = (c >> 4) & 15;
+		*p_comp_info_v_samp_factor = (c) & 15;
+		*p_comp_info_quant_tbl_no = read_byte (ReadBuf, offset);
+
+		printf (" index         = %d\n", *p_comp_info_index);
+		printf (" id            = %d\n", *p_comp_info_id);
+		printf (" h_samp_factor = %d\n", *p_comp_info_h_samp_factor);
+		printf (" v_samp_factor = %d\n", *p_comp_info_v_samp_factor);
+		printf (" quant_tbl_no  = %d\n\n", *p_comp_info_quant_tbl_no);
+
+		if (*p_comp_info_index != out_index_get_sof[ci])
+		{
+			(*main_result)++;
+		}
+		if (*p_comp_info_id != out_id_get_sof[ci])
+		{
+			(*main_result)++;
+		}
+		if (*p_comp_info_h_samp_factor != out_h_samp_factor_get_sof[ci])
+		{
+			(*main_result)++;
+		}
+		if (*p_comp_info_v_samp_factor != out_v_samp_factor_get_sof[ci])
+		{
+			(*main_result)++;
+		}
+		if (*p_comp_info_quant_tbl_no != out_quant_tbl_no_get_sof[ci])
+		{
+			(*main_result)++;
+		}
+
+	}
+
+	/*
+	 *  Determine Sampling Factor
+	 *  Only 1_1_1 and 4_1_1 are supported
+	 */
+	if (p_jinfo_comps_info_h_samp_factor[0] == 2)
+	{
+		*p_jinfo_smp_fact = SF4_1_1;
+		printf ("\nSampling Factor is 4:1:1\n");
+	}
+	else
+	{
+		*p_jinfo_smp_fact = SF1_1_1;
+		printf ("\nSampling Factor is 1:1:1\n");
+	}
 }
 
 
 void
-get_sos ()
+//unsigned char *
+get_sos (int * main_result, unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset,
+		int out_length_get_sos, int out_num_comp_get_sos, char p_jinfo_num_components,
+		char p_jinfo_comps_info_id[NUM_COMPONENT], char p_jinfo_comps_info_dc_tbl_no[NUM_COMPONENT], char p_jinfo_comps_info_ac_tbl_no[NUM_COMPONENT],
+		int out_comp_id_get_sos[GET_SOS_REP], int out_dc_tbl_no_get_sos[GET_SOS_REP], int out_ac_tbl_no_get_sos[GET_SOS_REP], int * i_get_sos,
+		unsigned char p_jinfo_jpeg_data[JPEG_FILE_SIZE])
+//		unsigned char * p_jinfo_jpeg_data)
 {
-  int length, num_comp;
-  int i, c, cc, ci, j;
-  char *p_comp_info_id;
-  char *p_comp_info_dc_tbl_no;
-  char *p_comp_info_ac_tbl_no;
+	int length, num_comp;
+	int i, c, cc, ci, j;
+	char *p_comp_info_id;
+	char *p_comp_info_dc_tbl_no;
+	char *p_comp_info_ac_tbl_no;
 
-  length = read_word ();
-  num_comp = read_byte ();
+	length = read_word (ReadBuf, offset);
+	num_comp = read_byte (ReadBuf, offset);
 
-  printf (" length = %d\n", length);
-  printf (" num_comp = %d\n", num_comp);
+	printf (" length = %d\n", length);
+	printf (" num_comp = %d\n", num_comp);
 
-  if (length != out_length_get_sos)
-    {
-        main_result++;
-    }
-  if (num_comp != out_num_comp_get_sos)
-    {
-        main_result++;
-    }
-
-  /* Decode each component */
-  for (i = 0; i < num_comp; i++)
-    {
-      cc = read_byte ();
-      c = read_byte ();
-
-      for (ci = 0; ci < p_jinfo_num_components; ci++)
+	if (length != out_length_get_sos)
 	{
-	  p_comp_info_id = &p_jinfo_comps_info_id[ci];
-	  p_comp_info_dc_tbl_no = &p_jinfo_comps_info_dc_tbl_no[ci];
-	  p_comp_info_ac_tbl_no = &p_jinfo_comps_info_ac_tbl_no[ci];
-
-	  if (cc == *p_comp_info_id)
-	    goto id_found;
+		(*main_result)++;
 	}
-      main_result++;
-      printf ("Bad Component ID!\n");
-      EXIT;
-
-    id_found:
-      *p_comp_info_dc_tbl_no = (c >> 4) & 15;
-      *p_comp_info_ac_tbl_no = (c) & 15;
-
-      printf (" comp_id       = %d\n", cc);
-      printf (" dc_tbl_no     = %d\n", *p_comp_info_dc_tbl_no);
-      printf (" ac_tbl_no     = %d\n", *p_comp_info_ac_tbl_no);
-
-      if (cc != out_comp_id_get_sos[i_get_sos])
+	if (num_comp != out_num_comp_get_sos)
 	{
-		main_result++;
+		(*main_result)++;
 	}
-      if (*p_comp_info_dc_tbl_no != out_dc_tbl_no_get_sos[i_get_sos])
+
+	/* Decode each component */
+	for (i = 0; i < num_comp; i++)
 	{
-		main_result++;
+		cc = read_byte (ReadBuf, offset);
+		c = read_byte (ReadBuf, offset);
+
+		for (ci = 0; ci < p_jinfo_num_components; ci++)
+		{
+			p_comp_info_id = &p_jinfo_comps_info_id[ci];
+			p_comp_info_dc_tbl_no = &p_jinfo_comps_info_dc_tbl_no[ci];
+			p_comp_info_ac_tbl_no = &p_jinfo_comps_info_ac_tbl_no[ci];
+
+			if (cc == *p_comp_info_id)
+				goto id_found;
+		}
+		(*main_result)++;
+		printf ("Bad Component ID!\n");
+		EXIT;
+
+		id_found:
+		*p_comp_info_dc_tbl_no = (c >> 4) & 15;
+		*p_comp_info_ac_tbl_no = (c) & 15;
+
+		printf (" comp_id       = %d\n", cc);
+		printf (" dc_tbl_no     = %d\n", *p_comp_info_dc_tbl_no);
+		printf (" ac_tbl_no     = %d\n", *p_comp_info_ac_tbl_no);
+
+		if (cc != out_comp_id_get_sos[*i_get_sos])
+		{
+			(*main_result)++;
+		}
+		if (*p_comp_info_dc_tbl_no != out_dc_tbl_no_get_sos[*i_get_sos])
+		{
+			(*main_result)++;
+		}
+		if (*p_comp_info_ac_tbl_no != out_ac_tbl_no_get_sos[*i_get_sos])
+		{
+			(*main_result)++;
+		}
+		(*i_get_sos)++;
+
 	}
-      if (*p_comp_info_ac_tbl_no != out_ac_tbl_no_get_sos[i_get_sos])
+
+	/* Pass parameters; Ss, Se, Ah and Al for progressive JPEG */
+	j = 3;
+	while (j--)
 	{
-		main_result++;
+		c = read_byte (ReadBuf, offset);
 	}
-      i_get_sos++;
 
-    }
-
-  /* Pass parameters; Ss, Se, Ah and Al for progressive JPEG */
-  j = 3;
-  while (j--)
-    {
-      c = read_byte ();
-    }
-
-  /*
-   * Define the Buffer at this point as the head of data
-   */
-  p_jinfo_jpeg_data = ReadBuf;
-
+	/*
+	 * Define the Buffer at this point as the head of data
+	 */
+//	*p_jinfo_jpeg_data = &ReadBuf[*offset];
+	p_jinfo_jpeg_data = &ReadBuf[*offset];
 }
 
 
@@ -424,189 +440,274 @@ get_sos ()
  * Get Huffman Table
  */
 void
-get_dht ()
+get_dht (int * main_result, unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset,
+		int out_length_get_dht[GET_DHT_REP], int out_index_get_dht[GET_DHT_REP], int * i_get_dht,
+		int p_jinfo_ac_xhuff_tbl_bits[NUM_HUFF_TBLS][36], int p_jinfo_ac_xhuff_tbl_huffval[NUM_HUFF_TBLS][257],
+		int p_jinfo_dc_xhuff_tbl_bits[NUM_HUFF_TBLS][36], int p_jinfo_dc_xhuff_tbl_huffval[NUM_HUFF_TBLS][257],
+		int out_count_get_dht[GET_DHT_REP])
 {
-  int length;
-  int index, i, count;
-  int *p_xhtbl_bits;
-  int *p_xhtbl_huffval;
+	int length;
+	int index, i, count;
+	int *p_xhtbl_bits;
+	int *p_xhtbl_huffval;
 
-  length = read_word ();
-  length -= 2;
+	length = read_word (ReadBuf, offset);
+	length -= 2;
 
-  printf (" length = %d\n", length);
+	printf (" length = %d\n", length);
 
-  if (length != out_length_get_dht[i_get_dht])
-    {
-        main_result++;
-    }
-
-  while (length > 16)
-    {
-      index = read_byte ();
-
-      printf (" index = 0x%x\n", index);
-
-      if (index != out_index_get_dht[i_get_dht])
+	if (length != out_length_get_dht[*i_get_dht])
 	{
-        main_result++;
-}
-
-      if (index & 0x10)
-	{
-	  /* AC */
-	  index -= 0x10;
-	  p_xhtbl_bits = p_jinfo_ac_xhuff_tbl_bits[index];
-	  p_xhtbl_huffval = p_jinfo_ac_xhuff_tbl_huffval[index];
-	}
-      else
-	{
-	  /* DC */
-	  p_xhtbl_bits = p_jinfo_dc_xhuff_tbl_bits[index];
-	  p_xhtbl_huffval = p_jinfo_dc_xhuff_tbl_huffval[index];
+		(*main_result)++;
 	}
 
-      count = 0;
-
-      for (i = 1; i <= 16; i++)
+	while (length > 16)
 	{
-	  p_xhtbl_bits[i] = read_byte ();
-	  count += p_xhtbl_bits[i];
+		index = read_byte (ReadBuf, offset);
+
+		printf (" index = 0x%x\n", index);
+
+		if (index != out_index_get_dht[*i_get_dht])
+		{
+			(*main_result)++;
+		}
+
+		if (index & 0x10)
+		{
+			/* AC */
+			index -= 0x10;
+			p_xhtbl_bits = p_jinfo_ac_xhuff_tbl_bits[index];
+			p_xhtbl_huffval = p_jinfo_ac_xhuff_tbl_huffval[index];
+		}
+		else
+		{
+			/* DC */
+			p_xhtbl_bits = p_jinfo_dc_xhuff_tbl_bits[index];
+			p_xhtbl_huffval = p_jinfo_dc_xhuff_tbl_huffval[index];
+		}
+
+		count = 0;
+
+		for (i = 1; i <= 16; i++)
+		{
+			p_xhtbl_bits[i] = read_byte (ReadBuf, offset);
+			count += p_xhtbl_bits[i];
+		}
+
+		printf (" count = %d\n", count);
+
+		if (count != out_count_get_dht[*i_get_dht])
+		{
+			(*main_result)++;;
+		}
+		(*i_get_dht)++;
+
+		length -= 1 + 16;
+
+		for (i = 0; i < count; i++)
+		{
+			p_xhtbl_huffval[i] = read_byte (ReadBuf, offset);
+		}
+
+		length -= count;
 	}
-
-      printf (" count = %d\n", count);
-
-      if (count != out_count_get_dht[i_get_dht])
-	{
-        main_result++;
-    }
-      i_get_dht++;
-
-      length -= 1 + 16;
-
-      for (i = 0; i < count; i++)
-	{
-	  p_xhtbl_huffval[i] = read_byte ();
-	}
-
-      length -= count;
-    }
 }
 
 
 void
-get_dqt ()
+get_dqt (int * main_result, unsigned char ReadBuf[JPEG_FILE_SIZE], int * offset,
+		int out_length_get_dqt[GET_DQT_REP], int out_prec_get_dht[GET_DQT_REP], int out_num_get_dht[GET_DQT_REP], int * i_get_dqt,
+		unsigned int p_jinfo_quant_tbl_quantval[NUM_QUANT_TBLS][DCTSIZE2])
 {
-  int length;
-  int prec, num, i;
-  unsigned int tmp;
-  unsigned int *p_quant_tbl;
+	int length;
+	int prec, num, i;
+	unsigned int tmp;
+	unsigned int *p_quant_tbl;
 
-  length = read_word ();
-  length -= 2;
+	/*
+	 * Initialize Quantization Table
+	 */
+	const int izigzag_index[64] = { 0, 1, 8, 16, 9, 2, 3, 10,
+			17, 24, 32, 25, 18, 11, 4, 5,
+			12, 19, 26, 33, 40, 48, 41, 34,
+			27, 20, 13, 6, 7, 14, 21, 28,
+			35, 42, 49, 56, 57, 50, 43, 36,
+			29, 22, 15, 23, 30, 37, 44, 51,
+			58, 59, 52, 45, 38, 31, 39, 46,
+			53, 60, 61, 54, 47, 55, 62, 63
+	};
 
-  printf (" length = %d\n", length);
+	length = read_word (ReadBuf, offset);
+	length -= 2;
 
-  if (length != out_length_get_dqt[i_get_dqt])
-    {
-        main_result++;
-    }
+	printf (" length = %d\n", length);
 
-  while (length > 0)
-    {
-      num = read_byte ();
-      /* Precision 0:8bit, 1:16bit */
-      prec = num >> 4;
-      /* Table Number */
-      num &= 0x0f;
-
-      printf (" prec = %d\n", prec);
-      printf (" num  = %d\n", num);
-
-      if (prec != out_prec_get_dht[i_get_dqt])
+	if (length != out_length_get_dqt[*i_get_dqt])
 	{
-        main_result++;
-    }
-      if (num != out_num_get_dht[i_get_dqt])
-	{
-        main_result++;
-    }
-      i_get_dqt++;
-
-      p_quant_tbl = &p_jinfo_quant_tbl_quantval[num][DCTSIZE2];
-      for (i = 0; i < DCTSIZE2; i++)
-	{
-	  if (prec)
-	    tmp = read_word ();
-	  else
-	    tmp = read_byte ();
-	  p_quant_tbl[izigzag_index[i]] = (unsigned short) tmp;
+		(*main_result)++;
 	}
 
-      length -= DCTSIZE2 + 1;
-      if (prec)
-	length -= DCTSIZE2;
-    }
+	while (length > 0)
+	{
+		num = read_byte (ReadBuf, offset);
+		/* Precision 0:8bit, 1:16bit */
+		prec = num >> 4;
+		/* Table Number */
+		num &= 0x0f;
+
+		printf (" prec = %d\n", prec);
+		printf (" num  = %d\n", num);
+
+		if (prec != out_prec_get_dht[*i_get_dqt])
+		{
+			(*main_result)++;
+		}
+		if (num != out_num_get_dht[*i_get_dqt])
+		{
+			(*main_result)++;
+		}
+		(*i_get_dqt)++;
+
+		p_quant_tbl = &p_jinfo_quant_tbl_quantval[num][DCTSIZE2];
+		for (i = 0; i < DCTSIZE2; i++)
+		{
+			if (prec)
+				tmp = read_word (ReadBuf, offset);
+			else
+				tmp = read_byte (ReadBuf, offset);
+			p_quant_tbl[izigzag_index[i]] = (unsigned short) tmp;
+		}
+
+		length -= DCTSIZE2 + 1;
+		if (prec)
+			length -= DCTSIZE2;
+	}
 }
 
 
 
 void
-read_markers (unsigned char *buf)
+//unsigned char *
+read_markers (unsigned char buf[JPEG_FILE_SIZE], int * main_result,
+		int * i_marker,
+		char * p_jinfo_data_precision,
+		short * p_jinfo_image_height,
+		short * p_jinfo_image_width,
+		char * p_jinfo_num_components,
+		int out_length_get_sof,
+		int out_data_precision_get_sof,
+		int out_p_jinfo_image_height_get_sof,
+		int out_p_jinfo_image_width_get_sof,
+		int out_p_jinfo_num_components_get_sof,
+		int out_index_get_sof[GET_SOF_REP],
+		int out_id_get_sof[GET_SOF_REP],
+		int out_h_samp_factor_get_sof[GET_SOF_REP],
+		int out_v_samp_factor_get_sof[GET_SOF_REP],
+		int out_quant_tbl_no_get_sof[GET_SOF_REP],
+		int * i_get_sos,
+		int out_length_get_sos,
+		int out_num_comp_get_sos,
+		int out_comp_id_get_sos[GET_SOS_REP],
+		int out_dc_tbl_no_get_sos[GET_SOS_REP],
+		int out_ac_tbl_no_get_sos[GET_SOS_REP],
+		int * i_get_dht,
+		int out_length_get_dht[GET_DHT_REP],
+		int out_index_get_dht[GET_DHT_REP],
+		int out_count_get_dht[GET_DHT_REP],
+		int * i_get_dqt,
+		int out_length_get_dqt[GET_DQT_REP],
+		int out_prec_get_dht[GET_DQT_REP],
+		int out_num_get_dht[GET_DQT_REP],
+		int * p_jinfo_smp_fact,
+		char p_jinfo_comps_info_id[NUM_COMPONENT],
+		char p_jinfo_comps_info_dc_tbl_no[NUM_COMPONENT],
+		char p_jinfo_comps_info_ac_tbl_no[NUM_COMPONENT],
+		unsigned char p_jinfo_jpeg_data[JPEG_FILE_SIZE], // TODO check this part
+		int p_jinfo_ac_xhuff_tbl_bits[NUM_HUFF_TBLS][36],
+		int p_jinfo_ac_xhuff_tbl_huffval[NUM_HUFF_TBLS][257],
+		int p_jinfo_dc_xhuff_tbl_bits[NUM_HUFF_TBLS][36],
+		int p_jinfo_dc_xhuff_tbl_huffval[NUM_HUFF_TBLS][257],
+		unsigned int p_jinfo_quant_tbl_quantval[NUM_QUANT_TBLS][DCTSIZE2],
+		int out_unread_marker[READ_MARKERS_REP],
+		char p_jinfo_comps_info_index[NUM_COMPONENT],
+		char p_jinfo_comps_info_h_samp_factor[NUM_COMPONENT],
+		char p_jinfo_comps_info_v_samp_factor[NUM_COMPONENT],
+		char p_jinfo_comps_info_quant_tbl_no[NUM_COMPONENT])
 {
-  int unread_marker;
-  int sow_SOI;
+	int unread_marker;
+	int sow_SOI;
+	unsigned char *ReadBuf;
+	int offset = 0;
 
-  ReadBuf = buf;
+	ReadBuf = buf;
+	//	printf("read_markers, ReadBuf address: %x\n", ReadBuf);
+	//	printf("read_markers, ReadBuf value: %x\n", ReadBuf[offset]);
+	//	unsigned char *ReadBuf2 = ++ReadBuf;
+	//	printf("read_markers, ReadBuf++ address: %x\n", ReadBuf2);
+	//	printf("read_markers, ReadBuf++ value: %x\n", *ReadBuf2);
 
-  sow_SOI = 0;
+	sow_SOI = 0;
 
-  unread_marker = 0;
+	unread_marker = 0;
 
-  /* Read the head of the marker */
-  for (;;)
-    {
-      if (!sow_SOI)
+	/* Read the head of the marker */
+	for (;;)
 	{
-	  unread_marker = first_marker ();
+		if (!sow_SOI)
+		{
+			unread_marker = first_marker (main_result, ReadBuf, &offset);
+		}
+		else
+		{
+			unread_marker = next_marker (ReadBuf, &offset);
+		}
+
+		printf ("\nmarker = 0x%x\n", unread_marker);
+
+		if (unread_marker != out_unread_marker[(*i_marker)++])
+		{
+			(*main_result)++;
+		}
+
+
+		switch (unread_marker)
+		{
+		case M_SOI:		/* Start of Image */
+			sow_SOI = 1;
+			break;
+
+		case M_SOF0:		/* Baseline DCT ( Huffman ) */
+//			get_sof (main_result, ReadBuf, &offset);
+			get_sof (main_result, ReadBuf, &offset, p_jinfo_data_precision, p_jinfo_image_height, p_jinfo_image_width, p_jinfo_num_components,
+					 out_length_get_sof, out_data_precision_get_sof, out_p_jinfo_image_height_get_sof, out_p_jinfo_image_width_get_sof, out_p_jinfo_num_components_get_sof,
+					 p_jinfo_comps_info_index, p_jinfo_comps_info_id, p_jinfo_comps_info_h_samp_factor, p_jinfo_comps_info_v_samp_factor, p_jinfo_comps_info_quant_tbl_no,
+					 out_index_get_sof, out_id_get_sof, out_h_samp_factor_get_sof, out_v_samp_factor_get_sof, out_quant_tbl_no_get_sof, p_jinfo_smp_fact);
+			break;
+
+		case M_SOS:		/* Start of Scan ( Head of Compressed Data ) */
+//			get_sos (main_result, ReadBuf, &offset);
+			get_sos(main_result, ReadBuf, &offset,
+					out_length_get_sos, out_num_comp_get_sos, *p_jinfo_num_components,
+					p_jinfo_comps_info_id, p_jinfo_comps_info_dc_tbl_no, p_jinfo_comps_info_ac_tbl_no,
+					out_comp_id_get_sos, out_dc_tbl_no_get_sos, out_ac_tbl_no_get_sos, i_get_sos, p_jinfo_jpeg_data);
+			return;
+
+		case M_DHT:
+			get_dht (main_result, ReadBuf, &offset,
+					out_length_get_dht, out_index_get_dht, i_get_dht,
+					p_jinfo_ac_xhuff_tbl_bits, p_jinfo_ac_xhuff_tbl_huffval,
+					p_jinfo_dc_xhuff_tbl_bits, p_jinfo_dc_xhuff_tbl_huffval,
+					out_count_get_dht);
+			break;
+
+		case M_DQT:
+			get_dqt (main_result, ReadBuf, &offset,
+					out_length_get_dqt, out_prec_get_dht, out_num_get_dht, i_get_dqt,
+					p_jinfo_quant_tbl_quantval);
+			break;
+
+		case M_EOI:
+			return;
+		}
 	}
-      else
-	{
-	  unread_marker = next_marker ();
-	}
-
-      printf ("\nmarker = 0x%x\n", unread_marker);
-
-      if (unread_marker != out_unread_marker[i_marker++])
-	{
-		main_result++;
-	}
-
-
-      switch (unread_marker)
-	{
-	case M_SOI:		/* Start of Image */
-	  sow_SOI = 1;
-	  break;
-
-	case M_SOF0:		/* Baseline DCT ( Huffman ) */
-	  get_sof ();
-	  break;
-
-	case M_SOS:		/* Start of Scan ( Head of Compressed Data ) */
-	  get_sos ();
-	  return;
-
-	case M_DHT:
-	  get_dht ();
-	  break;
-
-	case M_DQT:
-	  get_dqt ();
-	  break;
-
-	case M_EOI:
-	  return;
-	}
-    }
 }
